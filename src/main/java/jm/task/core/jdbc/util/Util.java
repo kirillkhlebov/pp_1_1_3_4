@@ -12,4 +12,8 @@ public class Util {
         connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/usersdatabase", "root", "root");
         return connection;
     }
+
+    public static void closeConnection() throws SQLException {
+        connection.close();
+    }
 }
