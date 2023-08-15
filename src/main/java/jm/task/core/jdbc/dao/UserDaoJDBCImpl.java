@@ -13,14 +13,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
+    private static Connection connection = null;
+
+    static {
+        try {
+            connection = Util.getConnection();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public UserDaoJDBCImpl() {
 
     }
 
     @Override
     public void createUsersTable() {
-        try (Connection connection = Util.getConnection()) {
-            Statement stmt = connection.createStatement();
+        try (Statement stmt = connection.createStatement()) {
             String sql = "CREATE TABLE `usersdatabase`.`users` (\n" +
                     "  `id` BIGINT NOT NULL AUTO_INCREMENT,\n" +
                     "  `name` VARCHAR(45) NULL,\n" +
@@ -38,8 +47,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     @Override
     public void dropUsersTable() {
-        try (Connection connection = Util.getConnection()) {
-            Statement stmt = connection.createStatement();
+        try (Statement stmt = connection.createStatement()) {
             String sql = "DROP TABLE `usersdatabase`.`users`;";
             stmt.executeUpdate(sql);
             System.out.println("Users table is deleted");
@@ -52,8 +60,8 @@ public class UserDaoJDBCImpl implements UserDao {
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        try (Connection connection = Util.getConnection()) {
-            PreparedStatement stmt = connection.prepareStatement("INSERT INTO `usersdatabase`.`users` (`name`, `lastname`, `age`) VALUES (?, ?, ?);");
+        try (PreparedStatement stmt = connection
+                .prepareStatement("INSERT INTO `usersdatabase`.`users` (`name`, `lastname`, `age`) VALUES (?, ?, ?);")) {
             stmt.setString(1, name);
             stmt.setString(2, lastName);
             stmt.setByte(3, age);
@@ -66,8 +74,8 @@ public class UserDaoJDBCImpl implements UserDao {
 
     @Override
     public void removeUserById(long id) {
-        try (Connection connection = Util.getConnection()) {
-            PreparedStatement stmt = connection.prepareStatement("DELETE FROM `usersdatabase`.`users` WHERE `id` = ?;");
+        try (PreparedStatement stmt = connection
+                .prepareStatement("DELETE FROM `usersdatabase`.`users` WHERE `id` = ?;")) {
             stmt.setLong(1, id);
             stmt.executeUpdate();
             System.out.printf(String.format("User with id = %d is deleted", id));
@@ -79,8 +87,8 @@ public class UserDaoJDBCImpl implements UserDao {
     @Override
     public List<User> getAllUsers() {
         List<User> usersList = new ArrayList<>();
-        try (Connection connection = Util.getConnection()) {
-            PreparedStatement stmt = connection.prepareStatement("SELECT * FROM `usersdatabase`.`users`;");
+        try (PreparedStatement stmt = connection
+                .prepareStatement("SELECT * FROM `usersdatabase`.`users`;");) {
             ResultSet resultSet = stmt.executeQuery();
             while (resultSet.next()) {
                 User user = new User(resultSet.getString("name"),
@@ -97,8 +105,8 @@ public class UserDaoJDBCImpl implements UserDao {
 
     @Override
     public void cleanUsersTable() {
-        try (Connection connection = Util.getConnection()) {
-            PreparedStatement stmt = connection.prepareStatement("DELETE FROM `usersdatabase`.`users`;");
+        try (PreparedStatement stmt = connection
+                .prepareStatement("DELETE FROM `usersdatabase`.`users`;")) {
             stmt.executeUpdate();
             System.out.println("All rows from Users table are removed");
         } catch (SQLException e) {
