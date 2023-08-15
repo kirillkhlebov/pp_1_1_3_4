@@ -13,9 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
-    private static Connection connection = null;
+    private final Connection connection;
 
-    static {
+    {
         try {
             connection = Util.getConnection();
         } catch (SQLException e) {
