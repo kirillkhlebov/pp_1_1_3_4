@@ -13,11 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
-    private final Connection connection;
+    private final Connection cnct;
 
     {
         try {
-            connection = Util.getConnection();
+            cnct = Util.getConnection();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -29,7 +29,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     @Override
     public void createUsersTable() {
-        try (Statement stmt = connection.createStatement()) {
+        try (Statement stmt = cnct.createStatement()) {
             String sql = "CREATE TABLE `usersdatabase`.`users` (\n" +
                     "  `id` BIGINT NOT NULL AUTO_INCREMENT,\n" +
                     "  `name` VARCHAR(45) NULL,\n" +
@@ -47,7 +47,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     @Override
     public void dropUsersTable() {
-        try (Statement stmt = connection.createStatement()) {
+        try (Statement stmt = cnct.createStatement()) {
             String sql = "DROP TABLE `usersdatabase`.`users`;";
             stmt.executeUpdate(sql);
             System.out.println("Users table is deleted");
@@ -60,7 +60,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        try (PreparedStatement stmt = connection
+        try (PreparedStatement stmt = cnct
                 .prepareStatement("INSERT INTO `usersdatabase`.`users` (`name`, `lastname`, `age`) VALUES (?, ?, ?);")) {
             stmt.setString(1, name);
             stmt.setString(2, lastName);
@@ -74,7 +74,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     @Override
     public void removeUserById(long id) {
-        try (PreparedStatement stmt = connection
+        try (PreparedStatement stmt = cnct
                 .prepareStatement("DELETE FROM `usersdatabase`.`users` WHERE `id` = ?;")) {
             stmt.setLong(1, id);
             stmt.executeUpdate();
@@ -87,7 +87,7 @@ public class UserDaoJDBCImpl implements UserDao {
     @Override
     public List<User> getAllUsers() {
         List<User> usersList = new ArrayList<>();
-        try (PreparedStatement stmt = connection
+        try (PreparedStatement stmt = cnct
                 .prepareStatement("SELECT * FROM `usersdatabase`.`users`;");) {
             ResultSet resultSet = stmt.executeQuery();
             while (resultSet.next()) {
@@ -105,7 +105,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     @Override
     public void cleanUsersTable() {
-        try (PreparedStatement stmt = connection
+        try (PreparedStatement stmt = cnct
                 .prepareStatement("DELETE FROM `usersdatabase`.`users`;")) {
             stmt.executeUpdate();
             System.out.println("All rows from Users table are removed");
